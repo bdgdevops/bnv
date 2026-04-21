@@ -55,7 +55,7 @@ jobs:
 
     env:
       Solution_Name: BVN.WinForms.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
-      Project_Path: BVN.WinForms/BVN.WinForms.csproj
+      Project_Path: BVN.WinForms.csproj
       Publish_Output: ./publish
       # Test_Project_Path: BVN.WinForms.Tests\BVN.WinForms.Tests.csproj                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
       # Wap_Project_Directory: BVN.WinForms.Package    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
