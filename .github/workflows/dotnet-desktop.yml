@@ -55,9 +55,10 @@ jobs:
 
     env:
       Solution_Name: BVN.WinForms.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
-      Test_Project_Path: BVN.WinForms.Tests\BVN.WinForms.Tests.csproj                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
-      Wap_Project_Directory: BVN.WinForms.Package    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
-      Wap_Project_Path: BVN.WinForms.Package\BVN.WinForms.Package.wapproj   
+      Project_Path: BVN.WinForms/BVN.WinForms.csproj
+      # Test_Project_Path: BVN.WinForms.Tests\BVN.WinForms.Tests.csproj                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
+      # Wap_Project_Directory: BVN.WinForms.Package    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
+      # Wap_Project_Path: BVN.WinForms.Package\BVN.WinForms.Package.wapproj   
 
     steps:
     - name: Checkout
