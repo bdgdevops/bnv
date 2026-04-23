@@ -61,7 +61,7 @@ jobs:
           #head: HEAD
           base: ${{ github.event.before }}
           head: ${{ github.event.after }}
-          extra_args: --debug --only-verified
+          
 
 
   # ══════════════════════════════════════════════════════════════════════════
