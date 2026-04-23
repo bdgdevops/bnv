@@ -44,6 +44,61 @@ on:
 
 jobs:
 
+  secret-scanning:
+    name: 🔐 Secret Scanning (Gitleaks)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0   # historial completo para escanear todos los commits
+
+    - name: Run Gitleaks
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}  # solo requerido para repos privados en orgs
+
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # JOB 2: CodeQL — Análisis Semántico Estático (SAST)
+  # Detecta vulnerabilidades lógicas: inyección SQL, XSS, flujo de datos inseguro
+  # Se ejecuta en paralelo con secret-scanning para mayor velocidad
+  # ══════════════════════════════════════════════════════════════════════════
+  codeql-analysis:
+    name: 🔬 SAST - CodeQL
+    runs-on: windows-latest   # requerido para analizar C# WinForms
+    permissions:
+      actions: read
+      contents: read
+      security-events: write  # necesario para subir resultados a GitHub Security
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: csharp
+        queries: security-and-quality   # incluye reglas de calidad además de seguridad
+
+    - name: Build for CodeQL
+      run: dotnet build BVN.WinForms/BVN.WinForms.csproj --configuration Release
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:csharp"
+
+
+
   build:
 
     strategy:
