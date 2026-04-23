@@ -18,6 +18,15 @@ public class LoginForm : Form
              conn.Open();
          }
     }
+    public string MostrarContenidoDeArchivo(string userInputFilename)
+{
+    // userInputFilename podría ser "../../../../Windows/System32/drivers/etc/hosts"
+    string folderSegura = @"C:\MisDocumentosSeguros\";
+    string fullPath = folderSegura + userInputFilename;
+    
+    // ❌ CodeQL advierte que estás leyendo una ruta no validada que puede ser manipulada
+    return File.ReadAllText(fullPath); 
+}
      public class EmailService
      {
          public void EnviarEmail()
