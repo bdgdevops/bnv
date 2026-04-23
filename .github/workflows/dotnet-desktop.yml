@@ -58,7 +58,7 @@ jobs:
       uses: gitleaks/gitleaks-action@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}  # solo requerido para repos privados en orgs
+        # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}  # solo requerido para repos privados en orgs
 
 
   # ══════════════════════════════════════════════════════════════════════════
@@ -100,13 +100,14 @@ jobs:
 
 
   build:
-
+    depth: 
     strategy:
       matrix:
         configuration: [Debug, Release]
 
     runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on  
+    needs: [secret-scanning, codeql-analysis]  # espera que los jobs de seguridad pasen
 
     env:
       Solution_Name: BVN.WinForms.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
