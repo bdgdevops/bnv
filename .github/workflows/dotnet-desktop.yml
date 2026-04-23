@@ -90,7 +90,7 @@ jobs:
         queries: security-and-quality   # incluye reglas de calidad además de seguridad
 
     - name: Build for CodeQL
-      run: dotnet build BVN.WinForms/BVN.WinForms.csproj --configuration Release
+      run: dotnet build BVN.WinForms.csproj --configuration Release
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
