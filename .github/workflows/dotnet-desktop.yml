@@ -99,9 +99,11 @@ jobs:
 
 
 
-  build:
-    depth: 
-    strategy:
+  build:    
+
+    strategy: #En lugar de escribir dos trabajos separados (uno para probar el código en modo "Debug" y otro para "Release"), GitHub Actions creará dos ejecuciones en paralelo automáticamente:
+              #Ejecución 1: Donde la variable configuration vale Debug.
+              #Ejecución 2: Donde la variable configuration vale Release.
       matrix:
         configuration: [Debug, Release]
 
