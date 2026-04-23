@@ -45,20 +45,21 @@ on:
 jobs:
 
   secret-scanning:
-    name: 🔐 Secret Scanning (Gitleaks)
+    name: 🔐 Secret Scanning (TruffleHog)
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0   # historial completo para escanear todos los commits
-
-    - name: Run Gitleaks
-      uses: gitleaks/gitleaks-action@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}  # solo requerido para repos privados en orgs
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para escanear el historial de commits
+          
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
 
 
   # ══════════════════════════════════════════════════════════════════════════
@@ -130,6 +131,20 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
+
+    # ── SCA: Análisis de Composición de Software ───────────────────────────
+    # Detecta paquetes NuGet con vulnerabilidades conocidas (CVEs)
+    - name: 🛡️ SCA - Check vulnerable NuGet packages
+      run: |
+        dotnet restore $env:Project_Path
+        $output = dotnet list $env:Project_Path package --vulnerable --include-transitive 2>&1
+        Write-Host $output
+        if ($output -match "has the following vulnerable packages") {
+          Write-Host "❌ Se encontraron paquetes NuGet con vulnerabilidades críticas. Revisa y actualiza antes de continuar."
+          exit 1
+        }
+        Write-Host "✅ Ningún paquete vulnerable encontrado."
+
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
