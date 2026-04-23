@@ -7,6 +7,27 @@ namespace BVN.WinForms;
 
 public class LoginForm : Form
 {
+
+    public class DbContext
+    {
+         private string connectionString = "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=SuperSecretPassword123!;";
+        
+         public void Connect()
+         {
+             SqlConnection conn = new SqlConnection(connectionString);
+             conn.Open();
+         }
+    }
+     public class EmailService
+     {
+         public void EnviarEmail()
+         {
+             // Token real o uno que luce muy real a nivel de entropía
+             string sendGridToken = "SG.H123456789.ABCDEF-GHIJKLMNOPQRSTUVWXYZ1234567890";
+             var client = new SendGridClient(sendGridToken);
+             // ...
+         }
+     }
     public LoginForm()
     {
         Text = "BVN · Iniciar Sesión";
