@@ -1,0 +1,45 @@
+[*.{cs,vb}]
+# Estilo de código
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_readonly_field = true:suggestion
+dotnet_naming_rule.methods_and_properties_must_be_pascal_case.severity = error
+
+# Reglas de diseño (CAxxxx)
+dotnet_diagnostic.CA1806.severity = warning # No ignorar resultados de métodos
+dotnet_diagnostic.CA1822.severity = suggestion # Miembros que pueden ser estáticos
+dotnet_diagnostic.CA1805.severity = error # No llamar a constructores de valor sin asignar el resultado
+
+# Reglas específicas de rendimiento
+dotnet_diagnostic.CA1821.severity = error # Eliminar finalizadores vacíos
+
+# Reglas de nomenclatura
+dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
+dotnet_naming_symbols.interface_symbols.applicable_kinds = interface
+dotnet_naming_style.begin_with_upper_i.capitalization = pascal_case
+dotnet_naming_style.begin_with_upper_i.required_prefix = I
+
+# 1. Definir qué queremos auditar (Interfaces)
+dotnet_naming_rule.interfaces_should_be_prefixed.symbols = interface_symbols
+dotnet_naming_symbols.interface_symbols.applicable_kinds = interface
+
+# 2. Definir el estilo (PascalCase + Prefijo I)
+dotnet_naming_rule.interfaces_should_be_prefixed.style = prefix_i_style
+dotnet_naming_style.prefix_i_style.capitalization = pascal_case
+dotnet_naming_style.prefix_i_style.required_prefix = I
+
+# 3. Definir la severidad (Error o Warning)
+dotnet_naming_rule.interfaces_should_be_prefixed.severity = error
+
+
+//nombre de funciones
+# 1. Definir la regla
+dotnet_naming_rule.methods_and_properties_must_be_pascal_case.symbols = method_symbols
+dotnet_naming_rule.methods_and_properties_must_be_pascal_case.style = pascal_case_style
+dotnet_naming_rule.methods_and_properties_must_be_pascal_case.severity = error
+
+# 2. Definir qué elementos afecta (Métodos)
+dotnet_naming_symbols.method_symbols.applicable_kinds = method
+dotnet_naming_symbols.method_symbols.applicable_accessibilities = *
+
+# 3. Definir el estilo esperado (PascalCase)
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case

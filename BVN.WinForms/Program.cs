@@ -1,5 +1,8 @@
 // Program.cs
 using BVN.WinForms;
+using Velopack;
+
+VelopackApp.Build().Run();
 
 Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 Application.EnableVisualStyles();

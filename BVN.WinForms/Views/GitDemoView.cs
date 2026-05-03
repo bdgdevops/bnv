@@ -11,7 +11,7 @@ public class GitDemoView : DbUserControl
     private readonly GitSimulator _git = new();
     private readonly Panel        _termOutput;
     private readonly TextBox      _termInput;
-    private int                   _termY = 0;
+    private int                   _termY;
 
     private readonly string[] _suggestions =
     [
