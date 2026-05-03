@@ -145,8 +145,8 @@ public class LoginForm : Form
         btnLogin.FlatAppearance.BorderSize = 0;
         btnLogin.Click += (_, _) =>
         {
-            
-            if(userTxt.Text != "admin" || passTxt.Text != "password")
+            string _nombre = null;
+            if (userTxt.Text != "admin" || passTxt.Text != "password")
             {
                 MessageBox.Show("Usuario o contraseña incorrectos.", "Error de autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -161,4 +161,5 @@ public class LoginForm : Form
         AcceptButton = btnLogin;
 
     }
+
 }
