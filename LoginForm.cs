@@ -140,6 +140,12 @@ public class LoginForm : Form
         btnLogin.FlatAppearance.BorderSize = 0;
         btnLogin.Click += (_, _) =>
         {
+            var result = BVN.WinForms.Services.LoginValidator.Validate(userTxt.Text, passTxt.Text);
+            if (!result.IsValid)
+            {
+                MessageBox.Show(result.ErrorMessage, "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             DialogResult = DialogResult.OK;
             Close();
         };
