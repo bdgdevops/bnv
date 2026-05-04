@@ -9,7 +9,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <NoWarn>WFO1000</NoWarn>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Velopack" Version="0.*" />

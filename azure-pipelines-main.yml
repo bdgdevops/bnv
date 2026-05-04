@@ -7,7 +7,7 @@ pool:
   name: Default
 
 variables:
-  Project_Path: 'BVN.WinForms/BVN.WinForms.csproj'
+  Project_Path: 'BVN.WinForms.csproj'
   Publish_Output: '$(Build.SourcesDirectory)/publish'
   Releases_Path: 'C:\\releases'
 
@@ -41,23 +41,30 @@ steps:
       --runtime win-x64 `
       --self-contained true `
       -p:PublishSingleFile=true `
+      -p:Version="1.0.$(Build.BuildId)" `
       --output $(Publish_Output)
   displayName: 'Build & Publish'
 
 # 6. Empaquetar con Velopack usando el ID de compilación de Azure DevOps
+- task: UseDotNet@2
+  displayName: 'Install .NET 9'
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+    
 - powershell: |
     vpk pack `
       --packId "BVNWinForms" `
       --packVersion "1.0.$(Build.BuildId)" `
       --packDir "$(Publish_Output)" `
       --mainExe "BVN.WinForms.exe" `
-      --releaseDir "$(Build.SourcesDirectory)/releases"
+      --outputDir "$(Build.SourcesDirectory)/releases"
   displayName: 'Package with Velopack'
 
-# 6. Copiar los archivos empaquetados a la carpeta compartida en red
-- powershell: |
-    Copy-Item -Path "$(Build.SourcesDirectory)/releases/*" `
-              -Destination "$(Releases_Path)" `
-              -Recurse -Force
-    Write-Host "✅ Deploy exitoso en $(Releases_Path)"
-  displayName: 'Deploy releases to shared folder'
+# # 7. Copiar los archivos empaquetados a la carpeta compartida en red
+# - powershell: |
+#     Copy-Item -Path "$(Build.SourcesDirectory)/releases/*" `
+#               -Destination "$(Releases_Path)" `
+#               -Recurse -Force
+#     Write-Host "✅ Deploy exitoso en $(Releases_Path)"
+#   displayName: 'Deploy releases to shared folder'
