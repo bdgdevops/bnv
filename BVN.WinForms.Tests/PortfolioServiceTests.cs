@@ -155,4 +155,39 @@ public class PortfolioServiceTests
 
         Assert.Equal(3, svc.TodayTradeCount());
     }
+
+    // ─── PRUEBA INTENCIONAL QUE FALLA ─────────────────────────────────────────
+
+    /// <summary>
+    /// ⚠️ FALLA INTENCIONAL — Pendiente de implementar.
+    /// <para>
+    ///   El servicio aún no cuenta las órdenes canceladas por fondos insuficientes
+    ///   como "intentos de operación". Esta prueba documenta ese comportamiento
+    ///   esperado futuro y DEBE fallar hasta que se implemente la funcionalidad.
+    /// </para>
+    /// </summary>
+    [Fact(DisplayName = "⚠️ FALLA INTENCIONAL: ClearHistory debe reducir TodayTradeCount a 0")]
+    public void FAILING_ClearHistory_ShouldResetTodayTradeCount()
+    {
+        // Arrange
+        var svc   = new PortfolioService();
+        var stock = MakeStock(price: 100.0);
+
+        svc.Buy(stock, qty: 5);  // 1 transacción registrada
+        svc.Buy(stock, qty: 3);  // 2 transacciones registradas
+
+        // Act: ClearHistory borra las transacciones del historial
+        svc.ClearHistory();
+
+        // Assert INTENCIONAL: se espera que TodayTradeCount() devuelva 0
+        // tras limpiar el historial... pero en realidad lo hace correctamente.
+        // El Assert.Fail fuerza el fallo para demostrar una prueba roja (red).
+        int tradeCount = svc.TodayTradeCount();
+        Assert.Fail(
+            $"🔴 PRUEBA ROJA (red) intencional.\n" +
+            $"   TodayTradeCount() devolvió {tradeCount} — el comportamiento es correcto,\n" +
+            $"   pero esta prueba existe para demostrar cómo se ve un fallo en el pipeline.\n" +
+            $"   Elimina o comenta este Assert.Fail() cuando ya no necesites la demostración."
+        );
+    }
 }
