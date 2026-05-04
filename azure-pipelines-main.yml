@@ -68,3 +68,12 @@ steps:
 #               -Recurse -Force
 #     Write-Host "✅ Deploy exitoso en $(Releases_Path)"
 #   displayName: 'Deploy releases to shared folder'
+
+
+# 7 Subir el paquete a Artifacts
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Velopack Package'
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/releases'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
