@@ -40,6 +40,13 @@ steps:
   displayName: 'Build & Publish'
 
 # 5. Empaquetar con Velopack usando el ID de compilación de Azure DevOps
+
+- task: UseDotNet@2
+  displayName: 'Install .NET 9'
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+    
 - powershell: |
     vpk pack `
       --packId "BVNWinForms" `
