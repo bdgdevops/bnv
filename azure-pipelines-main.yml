@@ -53,7 +53,7 @@ steps:
       --packVersion "1.0.$(Build.BuildId)" `
       --packDir "$(Publish_Output)" `
       --mainExe "BVN.WinForms.exe" `
-      --releaseDir "$(Build.SourcesDirectory)/releases"
+      --outputDir "$(Build.SourcesDirectory)/releases"
   displayName: 'Package with Velopack'
 
 # 6. Copiar los archivos empaquetados a la carpeta compartida en red
