@@ -8,35 +8,6 @@ namespace BVN.WinForms;
 public class LoginForm : Form
 {
 
-    public class DbContext
-    {
-         private string connectionString = "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=SuperSecretPassword123!;";
-        
-         public void Connect()
-         {
-             SqlConnection conn = new SqlConnection(connectionString);
-             conn.Open();
-         }
-    }
-    public string MostrarContenidoDeArchivo(string userInputFilename)
-{
-    // userInputFilename podría ser "../../../../Windows/System32/drivers/etc/hosts"
-    string folderSegura = @"C:\MisDocumentosSeguros\";
-    string fullPath = folderSegura + userInputFilename;
-    
-    // ❌ CodeQL advierte que estás leyendo una ruta no validada que puede ser manipulada
-    return File.ReadAllText(fullPath); 
-}
-     public class EmailService
-     {
-         public void EnviarEmail()
-         {
-             // Token real o uno que luce muy real a nivel de entropía
-             string sendGridToken = "SG.H123456789.ABCDEF-GHIJKLMNOPQRSTUVWXYZ1234567890";
-             var client = new SendGridClient(sendGridToken);
-             // ...
-         }
-     }
     public LoginForm()
     {
         Text = "BVN · Iniciar Sesión";
