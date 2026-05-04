@@ -11,5 +11,7 @@
     <NoWarn>WFO1000</NoWarn>
     <version>1.0.0</version>
   </PropertyGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="0.*" />
+  </ItemGroup>
 </Project>

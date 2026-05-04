@@ -5,21 +5,22 @@ using BVN.WinForms.Controls;
 using BVN.WinForms.Services;
 using BVN.WinForms.Theme;
 using BVN.WinForms.Views;
+using Velopack;
 
 namespace BVN.WinForms;
 
 public class MainForm : Form
 {
     // ── Servicios ─────────────────────────────────────────────
-    private readonly MarketSimulator  _sim;
+    private readonly MarketSimulator _sim;
     private readonly PortfolioService _port;
 
     // ── Vistas ────────────────────────────────────────────────
-    private readonly MarketView    _viewMarket;
+    private readonly MarketView _viewMarket;
     private readonly PortfolioView _viewPortfolio;
-    private readonly HistoryView   _viewHistory;
-    private readonly GitDemoView   _viewGit;
-    private Control                _currentView;
+    private readonly HistoryView _viewHistory;
+    private readonly GitDemoView _viewGit;
+    private Control _currentView;
 
     // ── Sidebar controles ─────────────────────────────────────
     private readonly NavButton _navMarket;
@@ -42,37 +43,66 @@ public class MainForm : Form
     // ── Toast ─────────────────────────────────────────────────
     private Panel? _toastPanel;
 
+    private async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            var updatePath = @"c:\releases";
+            var mgr = new UpdateManager(updatePath);
+            if (!mgr.IsInstalled) return; // no verificar si no está instalado con Velopack
+            var update = await mgr.CheckForUpdatesAsync();
+            if (update == null) return; // ya está en la última versión
+            // Preguntar al usuario
+            var result = MessageBox.Show(
+                $"Nueva versión {update.TargetFullRelease.Version} disponible.\n¿Desea actualizar ahora?",
+                "Actualización disponible",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Information);
+            if (result == DialogResult.Yes)
+            {
+                await mgr.DownloadUpdatesAsync(update);
+                mgr.ApplyUpdatesAndRestart(update);
+            }
+        }
+        catch (Exception ex)
+        {
+            // No interrumpir la app si falla la verificación
+            Console.WriteLine($"Error al verificar actualizaciones: {ex.Message}");
+        }
+    }
+
     public MainForm()
     {
         // ── Configuración de ventana ───────────────────────────
-        Text            = "BVN · Bolsa de Valores Nacional";
-        Size            = new Size(1380, 840);
-        MinimumSize     = new Size(1120, 700);
-        StartPosition   = FormStartPosition.CenterScreen;
-        BackColor       = AppTheme.BgBase;
-        ForeColor       = AppTheme.TextPrimary;
-        Font            = AppTheme.FontBase;
-        DoubleBuffered  = true;
+        Text = "BVN · Bolsa de Valores Nacional";
+        Size = new Size(1380, 840);
+        MinimumSize = new Size(1120, 700);
+        StartPosition = FormStartPosition.CenterScreen;
+        BackColor = AppTheme.BgBase;
+        ForeColor = AppTheme.TextPrimary;
+        Font = AppTheme.FontBase;
+        DoubleBuffered = true;
 
         // Aplicar DWM dark title bar
-        Load += (_, _) =>
+        Load += async (_, _) =>
         {
             AppTheme.ApplyDarkTitleBar(this);
             AppTheme.RoundCorners(this);
+            await CheckForUpdatesAsync();
         };
 
         // ── Servicios ─────────────────────────────────────────
-        _sim  = new MarketSimulator();
+        _sim = new MarketSimulator();
         _port = new PortfolioService();
 
         // ── Raíz: Header + Cuerpo ─────────────────────────────
         var root = new TableLayoutPanel
         {
-            Dock        = DockStyle.Fill,
-            RowCount    = 2,
+            Dock = DockStyle.Fill,
+            RowCount = 2,
             ColumnCount = 1,
-            BackColor   = AppTheme.BgBase,
-            Padding     = new Padding(0),
+            BackColor = AppTheme.BgBase,
+            Padding = new Padding(0),
         };
         root.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
@@ -86,21 +116,21 @@ public class MainForm : Form
         // Logo
         var logo = new Label
         {
-            Text      = "📈  BVN",
+            Text = "📈  BVN",
             ForeColor = AppTheme.AccentBlue,
-            Font      = new Font("Segoe UI", 14f, FontStyle.Bold),
-            Location  = new Point(18, 0),
-            AutoSize  = false,
-            Size      = new Size(120, 56),
+            Font = new Font("Segoe UI", 14f, FontStyle.Bold),
+            Location = new Point(18, 0),
+            AutoSize = false,
+            Size = new Size(120, 56),
             TextAlign = ContentAlignment.MiddleLeft,
         };
         var logosub = new Label
         {
-            Text      = "Bolsa de Valores Nacional",
+            Text = "Bolsa de Valores Nacional",
             ForeColor = AppTheme.TextMuted,
-            Font      = AppTheme.FontSmall,
-            Location  = new Point(84, 18),
-            AutoSize  = true,
+            Font = AppTheme.FontSmall,
+            Location = new Point(84, 18),
+            AutoSize = true,
         };
         header.Controls.AddRange([logo, logosub]);
 
@@ -108,22 +138,22 @@ public class MainForm : Form
         _lblClock = new Label
         {
             ForeColor = AppTheme.TextMuted,
-            Font      = new Font("Cascadia Code", 10f),
-            AutoSize  = true,
+            Font = new Font("Cascadia Code", 10f),
+            AutoSize = true,
             TextAlign = ContentAlignment.MiddleRight,
         };
         _lblMarketStatus = new Label
         {
-            Text      = "● ABIERTO",
+            Text = "● ABIERTO",
             ForeColor = AppTheme.GreenLight,
-            Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-            AutoSize  = true,
+            Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+            AutoSize = true,
         };
         _lblCash = new Label
         {
             ForeColor = AppTheme.GreenLight,
-            Font      = new Font("Cascadia Code", 12f, FontStyle.Bold),
-            AutoSize  = true,
+            Font = new Font("Cascadia Code", 12f, FontStyle.Bold),
+            AutoSize = true,
         };
         header.Controls.AddRange([_lblClock, _lblMarketStatus, _lblCash]);
         header.Resize += (_, _) => LayoutHeaderRight(header);
@@ -131,10 +161,10 @@ public class MainForm : Form
         // ── Cuerpo: Sidebar + Contenido ───────────────────────
         var body = new TableLayoutPanel
         {
-            Dock        = DockStyle.Fill,
+            Dock = DockStyle.Fill,
             ColumnCount = 2,
-            RowCount    = 1,
-            BackColor   = Color.Transparent,
+            RowCount = 1,
+            BackColor = Color.Transparent,
         };
         body.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 215));
         body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -143,7 +173,7 @@ public class MainForm : Form
         // ── Sidebar ───────────────────────────────────────────
         var sidebar = new DbPanel
         {
-            Dock      = DockStyle.Fill,
+            Dock = DockStyle.Fill,
             BackColor = AppTheme.BgSurface,
         };
         sidebar.Paint += PaintSidebarBorder;
@@ -152,9 +182,9 @@ public class MainForm : Form
         // Nav section label
         AddSidebarLabel(sidebar, "NAVEGACIÓN", 16, 18);
 
-        _navMarket    = new NavButton { TitleText = "Mercado",   Icon = "📊", Active = true, Dock = DockStyle.Top, Location = new Point(0, 38) };
-        _navPortfolio = new NavButton { TitleText = "Portafolio",Icon = "💼",               Dock = DockStyle.Top };
-        _navHistory   = new NavButton { TitleText = "Historial", Icon = "📋",               Dock = DockStyle.Top };
+        _navMarket = new NavButton { TitleText = "Mercado", Icon = "📊", Active = true, Dock = DockStyle.Top, Location = new Point(0, 38) };
+        _navPortfolio = new NavButton { TitleText = "Portafolio", Icon = "💼", Dock = DockStyle.Top };
+        _navHistory = new NavButton { TitleText = "Historial", Icon = "📋", Dock = DockStyle.Top };
 
         var navSep = new DbPanel { Height = 1, Dock = DockStyle.Top, BackColor = Color.FromArgb(18, 79, 156, 249) };
 
@@ -171,19 +201,19 @@ public class MainForm : Form
         // KPI cards en sidebar
         var kpiPanel = new DbPanel
         {
-            Dock      = DockStyle.Bottom,
-            Height    = 360,
+            Dock = DockStyle.Bottom,
+            Height = 360,
             BackColor = Color.Transparent,
-            Padding   = new Padding(8, 8, 8, 8),
+            Padding = new Padding(8, 8, 8, 8),
         };
         sidebar.Controls.Add(kpiPanel);
 
         var kpiLayout = new TableLayoutPanel
         {
-            Dock        = DockStyle.Fill,
-            RowCount    = 5,
+            Dock = DockStyle.Fill,
+            RowCount = 5,
             ColumnCount = 1,
-            BackColor   = Color.Transparent,
+            BackColor = Color.Transparent,
         };
         kpiLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 16));
         kpiLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
@@ -194,54 +224,54 @@ public class MainForm : Form
 
         var sectionLbl = new Label
         {
-            Text      = "RESUMEN",
+            Text = "RESUMEN",
             ForeColor = AppTheme.TextMuted,
-            Font      = new Font("Segoe UI", 7f, FontStyle.Bold),
-            Dock      = DockStyle.Fill,
+            Font = new Font("Segoe UI", 7f, FontStyle.Bold),
+            Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.BottomLeft,
-            Padding   = new Padding(4, 0, 0, 0),
+            Padding = new Padding(4, 0, 0, 0),
         };
         kpiLayout.Controls.Add(sectionLbl, 0, 0);
 
         _kpiPortfolio = new KpiCard { TitleText = "Portafolio Total", Value = "$100,000.00", Dock = DockStyle.Fill };
-        _kpiPnL       = new KpiCard { TitleText = "Ganancia / Pérdida", Value = "$0.00",    Dock = DockStyle.Fill };
-        _kpiIndex     = new KpiCard { TitleText = "Índice BVN General", Value = "—",        Dock = DockStyle.Fill };
-        _kpiTrades    = new KpiCard { TitleText = "Operaciones Hoy",    Value = "0",        Dock = DockStyle.Fill };
+        _kpiPnL = new KpiCard { TitleText = "Ganancia / Pérdida", Value = "$0.00", Dock = DockStyle.Fill };
+        _kpiIndex = new KpiCard { TitleText = "Índice BVN General", Value = "—", Dock = DockStyle.Fill };
+        _kpiTrades = new KpiCard { TitleText = "Operaciones Hoy", Value = "0", Dock = DockStyle.Fill };
 
         kpiLayout.Controls.Add(_kpiPortfolio, 0, 1);
-        kpiLayout.Controls.Add(_kpiPnL,       0, 2);
-        kpiLayout.Controls.Add(_kpiIndex,     0, 3);
-        kpiLayout.Controls.Add(_kpiTrades,    0, 4);
+        kpiLayout.Controls.Add(_kpiPnL, 0, 2);
+        kpiLayout.Controls.Add(_kpiIndex, 0, 3);
+        kpiLayout.Controls.Add(_kpiTrades, 0, 4);
 
         // ── Contenido principal ───────────────────────────────
         var content = new DbPanel
         {
-            Dock      = DockStyle.Fill,
+            Dock = DockStyle.Fill,
             BackColor = AppTheme.BgBase,
-            Padding   = new Padding(14, 14, 14, 14),
+            Padding = new Padding(14, 14, 14, 14),
         };
         body.Controls.Add(content, 1, 0);
 
         // Vistas
-        _viewMarket    = new MarketView(_sim, _port);
+        _viewMarket = new MarketView(_sim, _port);
         _viewPortfolio = new PortfolioView(_port);
-        _viewHistory   = new HistoryView(_port);
-        _viewGit       = new GitDemoView();
+        _viewHistory = new HistoryView(_port);
+        _viewGit = new GitDemoView();
 
-        _viewMarket.ToastRequested   += ShowToast;
+        _viewMarket.ToastRequested += ShowToast;
 
         content.Controls.AddRange([_viewGit, _viewHistory, _viewPortfolio, _viewMarket]);
 
         _viewPortfolio.Visible = false;
-        _viewHistory.Visible   = false;
-        _viewGit.Visible       = false;
+        _viewHistory.Visible = false;
+        _viewGit.Visible = false;
         _currentView = _viewMarket;
 
         // ── Navegación ────────────────────────────────────────
-        _navMarket.Clicked    += (_, _) => ShowView(_viewMarket,    _navMarket);
+        _navMarket.Clicked += (_, _) => ShowView(_viewMarket, _navMarket);
         _navPortfolio.Clicked += (_, _) => ShowView(_viewPortfolio, _navPortfolio);
-        _navHistory.Clicked   += (_, _) => ShowView(_viewHistory,   _navHistory);
-        _navGit.Clicked       += (_, _) => ShowView(_viewGit,       _navGit);
+        _navHistory.Clicked += (_, _) => ShowView(_viewHistory, _navHistory);
+        _navGit.Clicked += (_, _) => ShowView(_viewGit, _navGit);
 
         // ── Reloj ─────────────────────────────────────────────
         _clockTimer = new System.Windows.Forms.Timer { Interval = 1000, Enabled = true };
@@ -268,21 +298,21 @@ public class MainForm : Form
             _port.UpdatePrices(stocks);
             _viewMarket.UpdateFromTick(stocks);
 
-            var total   = _port.TotalValue(stocks);
-            var pnl     = total - PortfolioService.InitialCash;
-            var pnlPct  = (pnl / PortfolioService.InitialCash) * 100;
+            var total = _port.TotalValue(stocks);
+            var pnl = total - PortfolioService.InitialCash;
+            var pnlPct = (pnl / PortfolioService.InitialCash) * 100;
 
             _kpiPortfolio.Value = $"${total:N2}";
             _kpiPortfolio.Invalidate();
 
-            _kpiPnL.Value    = $"{(pnl >= 0 ? "+" : "-")}${Math.Abs(pnl):N2}";
-            _kpiPnL.Sub      = $"{(pnlPct >= 0 ? "+" : "")}{pnlPct:N2}%";
+            _kpiPnL.Value = $"{(pnl >= 0 ? "+" : "-")}${Math.Abs(pnl):N2}";
+            _kpiPnL.Sub = $"{(pnlPct >= 0 ? "+" : "")}{pnlPct:N2}%";
             _kpiPnL.SubColor = pnl >= 0 ? AppTheme.GreenLight : AppTheme.RedLight;
             _kpiPnL.Invalidate();
 
             _kpiIndex.Value = $"{_sim.IndexValue:N2}";
             var idxPct = ((_sim.IndexValue - _sim.IndexOpen) / _sim.IndexOpen) * 100;
-            _kpiIndex.Sub      = $"{(idxPct >= 0 ? "+" : "")}{idxPct:N2}%";
+            _kpiIndex.Sub = $"{(idxPct >= 0 ? "+" : "")}{idxPct:N2}%";
             _kpiIndex.SubColor = idxPct >= 0 ? AppTheme.GreenLight : AppTheme.RedLight;
             _kpiIndex.Invalidate();
 
@@ -299,26 +329,26 @@ public class MainForm : Form
     private void ShowView(Control view, NavButton btn)
     {
         _currentView.Visible = false;
-        view.Visible         = true;
-        _currentView         = view;
+        view.Visible = true;
+        _currentView = view;
 
-        _navMarket.Active    = btn == _navMarket;
+        _navMarket.Active = btn == _navMarket;
         _navPortfolio.Active = btn == _navPortfolio;
-        _navHistory.Active   = btn == _navHistory;
-        _navGit.Active       = btn == _navGit;
+        _navHistory.Active = btn == _navHistory;
+        _navGit.Active = btn == _navGit;
 
         if (view == _viewPortfolio) _viewPortfolio.Refresh();
-        if (view == _viewHistory)   _viewHistory.Refresh();
+        if (view == _viewHistory) _viewHistory.Refresh();
     }
 
     // ── Reloj ─────────────────────────────────────────────────
     private void UpdateClock(Control header)
     {
         _lblClock.Text = DateTime.Now.ToString("HH:mm:ss");
-        var day  = (int)DateTime.Now.DayOfWeek;
+        var day = (int)DateTime.Now.DayOfWeek;
         var hour = DateTime.Now.Hour;
         bool open = day >= 1 && day <= 5 && hour >= 8 && hour < 17;
-        _lblMarketStatus.Text      = open ? "● ABIERTO" : "● CERRADO";
+        _lblMarketStatus.Text = open ? "● ABIERTO" : "● CERRADO";
         _lblMarketStatus.ForeColor = open ? AppTheme.GreenLight : AppTheme.RedLight;
         LayoutHeaderRight(header);
     }
@@ -356,7 +386,7 @@ public class MainForm : Form
             BackColor = isError
                 ? Color.FromArgb(210, 20, 6, 6)
                 : Color.FromArgb(210, 4, 24, 16),
-            Size    = new Size(380, 66),
+            Size = new Size(380, 66),
             Padding = new Padding(14, 10, 14, 10),
         };
         _toastPanel.Paint += (_, e) =>
@@ -368,12 +398,12 @@ public class MainForm : Form
         };
         _toastPanel.Controls.Add(new Label
         {
-            Text      = msg,
+            Text = msg,
             ForeColor = AppTheme.TextPrimary,
-            Font      = AppTheme.FontBold,
-            Location  = new Point(14, 8),
-            AutoSize  = false,
-            Size      = new Size(352, 50),
+            Font = AppTheme.FontBold,
+            Location = new Point(14, 8),
+            AutoSize = false,
+            Size = new Size(352, 50),
         });
 
         // Position bottom-right of content area
@@ -419,11 +449,11 @@ public class MainForm : Form
     {
         sidebar.Controls.Add(new Label
         {
-            Text      = text,
+            Text = text,
             ForeColor = AppTheme.TextMuted,
-            Font      = new Font("Segoe UI", 7f, FontStyle.Bold),
-            Location  = new Point(x, y),
-            AutoSize  = true,
+            Font = new Font("Segoe UI", 7f, FontStyle.Bold),
+            Location = new Point(x, y),
+            AutoSize = true,
         });
     }
 
@@ -431,13 +461,13 @@ public class MainForm : Form
     {
         sidebar.Controls.Add(new Label
         {
-            Text      = text,
+            Text = text,
             ForeColor = AppTheme.TextMuted,
-            Font      = new Font("Segoe UI", 7f, FontStyle.Bold),
-            Dock      = DockStyle.Top,
-            Height    = 30,
+            Font = new Font("Segoe UI", 7f, FontStyle.Bold),
+            Dock = DockStyle.Top,
+            Height = 30,
             TextAlign = ContentAlignment.BottomLeft,
-            Padding   = new Padding(18, 0, 0, 4),
+            Padding = new Padding(18, 0, 0, 4),
         });
     }
 }

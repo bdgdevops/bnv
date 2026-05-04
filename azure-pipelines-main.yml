@@ -13,14 +13,11 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  Project_Path: BVN.WinForms/BVN.WinForms.csproj
+  Publish_Output: ./publish
+  Releases_Path: C:\\releases
 
 steps:
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
-
 
 - task: PowerShell@2
   displayName: 'Obtener versión base del .csproj'
@@ -55,27 +52,39 @@ steps:
 
       # Actualiza el nombre del Pipeline (Run) en la interfaz de Azure DevOps
       Write-Host "##vso[build.updatebuildnumber]$fullVersion"
+
+- name: Install .NET 10
+  uses: actions/setup-dotnet@v4
+  with:
+    dotnet-version: 10.0.x
+- name: Install Velopack CLI
+  run: dotnet tool install -g vpk
+
+- name: Restore
+  run: dotnet restore $env:Project_Path
+
+- name: Publish
+  run: |
+    dotnet publish $env:Project_Path `
+      --configuration Release `
+      --runtime win-x64 `
+      --self-contained true `
+      -p:PublishSingleFile=true `
+      --output $env:Publish_Output
+
+- name: Package with Velopack
+  run: |
+    vpk pack `
+      --packId "BVNWinForms" `
+      --packVersion "$(baseVersion).$(Build.BuildId)" `
+      --packDir $env:Publish_Output `
+      --mainExe "BVN.WinForms.exe" `
+      --releaseDir ./releases
       
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+- name: Deploy releases to shared folder
+  run: |
+    Copy-Item -Path ".\releases\*" `
+              -Destination "$env:Releases_Path" `
+              -Recurse -Force
+    Write-Host "✅ Deploy exitoso en $env:Releases_Path"
 
-
-- task: DotNetCoreCLI@2
-  displayName: 'Publicar Aplicación'
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '**/*.csproj'    
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) -r win-x64 -p:PublishSingleFile=true --self-contained true -p:Version=$(baseVersion).$(Build.BuildId)'
-    zipAfterPublish: false
-
-# 4. NUEVO: Publicar Artefacto en Azure Pipelines
-- task: PublishPipelineArtifact@1
-  displayName: 'Subir Local'
-  inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)'
-    artifact: 'WinFormsAppBVN'
-    publishLocation: 'pipeline'
