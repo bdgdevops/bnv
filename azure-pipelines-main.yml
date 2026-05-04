@@ -1,0 +1,85 @@
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+
+- task: PowerShell@2
+  displayName: 'Obtener versión base del .csproj'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Busca el primer archivo .csproj en el repositorio
+      $csproj = Get-ChildItem -Path . -Filter *.csproj -Recurse | Select-Object -First 1
+      
+      if (-not $csproj) {
+          Write-Error "No se encontró ningún archivo .csproj"
+          exit 1
+      }
+      
+      Write-Host "Leyendo archivo: $($csproj.FullName)"
+      $content = Get-Content $csproj.FullName -Raw
+      
+      # Extrae el valor dentro de la etiqueta <version> usando Regex
+      if ($content -match '<version>(.*?)</version>') {
+          $baseVersion = $matches[1]
+          Write-Host "Versión base encontrada: $baseVersion"
+      } else {
+          Write-Warning "No se encontró la etiqueta <version>, usando 1.0.0 por defecto"
+          $baseVersion = "1.0.0"
+      }
+      
+      $buildId = "$(Build.BuildId)"
+      $fullVersion = "$baseVersion.$buildId"
+      
+      # Guarda la versión base en una variable para usarla en VSBuild
+      Write-Host "##vso[task.setvariable variable=baseVersion]$baseVersion"
+
+      # Actualiza el nombre del Pipeline (Run) en la interfaz de Azure DevOps
+      Write-Host "##vso[build.updatebuildnumber]$fullVersion"
+      
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publicar Aplicación'
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**/*.csproj'    
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) -r win-x64 -p:PublishSingleFile=true --self-contained true -p:Version=$(baseVersion).$(Build.BuildId)'
+    zipAfterPublish: false
+
+# 4. NUEVO: Publicar Artefacto en Azure Pipelines
+- task: PublishPipelineArtifact@1
+  displayName: 'Subir Local'
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: 'WinFormsAppBVN'
+    publishLocation: 'pipeline'
