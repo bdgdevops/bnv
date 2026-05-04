@@ -69,8 +69,7 @@ steps:
       --configuration Release `
       --runtime win-x64 `
       --self-contained true `
-      -p:PublishSingleFile=true `
-      -p:Version=$(baseVersion).$(Build.BuildId) `
+      -p:PublishSingleFile=true `      
       --output $(Publish_Output)
   displayName: 'Build & Publish'
 
@@ -84,8 +83,7 @@ steps:
     
 - powershell: |
     vpk pack `
-      --packId "BVNWinForms" `
-      --packVersion "$(baseVersion).$(Build.BuildId)" `
+      --packId "BVNWinForms" `      
       --packDir "$(Publish_Output)" `
       --mainExe "BVN.WinForms.exe" `
       --outputDir "$(Build.SourcesDirectory)/releases"
