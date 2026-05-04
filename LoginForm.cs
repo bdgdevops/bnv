@@ -156,7 +156,7 @@ public class LoginForm : Form
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleRight,
             Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-            Location = new Point(Width - 140, Height - 50)
+            Location = new Point(Width - 140, Height - 65)
         };
         Controls.Add(versionLbl);
     }
