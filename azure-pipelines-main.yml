@@ -29,40 +29,6 @@ steps:
     dotnet restore $(Project_Path)
   displayName: 'Restore dependencies'
 
-- task: PowerShell@2
-  displayName: 'Obtener versión base del .csproj'
-  inputs:
-    targetType: 'inline'
-    script: |
-      # Busca el primer archivo .csproj en el repositorio
-      $csproj = Get-ChildItem -Path . -Filter *.csproj -Recurse | Select-Object -First 1
-      
-      if (-not $csproj) {
-          Write-Error "No se encontró ningún archivo .csproj"
-          exit 1
-      }
-      
-      Write-Host "Leyendo archivo: $($csproj.FullName)"
-      $content = Get-Content $csproj.FullName -Raw
-      
-      # Extrae el valor dentro de la etiqueta <version> usando Regex
-      if ($content -match '<version>(.*?)</version>') {
-          $baseVersion = $matches[1]
-          Write-Host "Versión base encontrada: $baseVersion"
-      } else {
-          Write-Warning "No se encontró la etiqueta <version>, usando 1.0.0 por defecto"
-          $baseVersion = "1.0.0"
-      }
-      
-      $buildId = "$(Build.BuildId)"
-      $fullVersion = "$baseVersion.$buildId"
-      
-      # Guarda la versión base en una variable para usarla en VSBuild
-      Write-Host "##vso[task.setvariable variable=baseVersion]$baseVersion"
-
-      # Actualiza el nombre del Pipeline (Run) en la interfaz de Azure DevOps
-      Write-Host "##vso[build.updatebuildnumber]$fullVersion"
-
 # 4. Publicar la aplicación
 - powershell: |
     dotnet publish $(Project_Path) `
