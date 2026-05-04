@@ -7,7 +7,7 @@ pool:
   name: Default
 
 variables:
-  Project_Path: 'BVN.WinForms/BVN.WinForms.csproj'
+  Project_Path: 'BVN.WinForms.csproj'
   Publish_Output: '$(Build.SourcesDirectory)/publish'
   Releases_Path: 'C:\\releases'
 
