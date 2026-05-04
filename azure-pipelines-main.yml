@@ -8,6 +8,7 @@ pool:
 
 variables:
   Project_Path: 'BVN.WinForms.csproj'
+  Tests_Path: 'BVN.WinForms.Tests/BVN.WinForms.Tests.csproj'
   Publish_Output: '$(Build.SourcesDirectory)/publish'
   Releases_Path: 'C:\\releases'
 
@@ -31,7 +32,7 @@ steps:
 
 # 4. Run tests
 - powershell: |
-    dotnet test $(Project_Path)
+    dotnet test $(Tests_Path)
   displayName: 'Run tests'
 
 # 5. Publicar la aplicación
