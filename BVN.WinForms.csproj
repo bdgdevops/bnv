@@ -14,4 +14,12 @@
   <ItemGroup>
     <PackageReference Include="Velopack" Version="0.*" />
   </ItemGroup>
+
+  <!-- Excluir subcarpeta del proyecto de tests -->
+  <ItemGroup>
+    <Compile Remove="BVN.WinForms.Tests\**" />
+    <Content Remove="BVN.WinForms.Tests\**" />
+    <EmbeddedResource Remove="BVN.WinForms.Tests\**" />
+    <None Remove="BVN.WinForms.Tests\**" />
+  </ItemGroup>
 </Project>

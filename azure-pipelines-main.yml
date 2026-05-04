@@ -29,7 +29,12 @@ steps:
     dotnet restore $(Project_Path)
   displayName: 'Restore dependencies'
 
-# 4. Publicar la aplicación
+# 4. Run tests
+- powershell: |
+    dotnet test $(Project_Path)
+  displayName: 'Run tests'
+
+# 5. Publicar la aplicación
 - powershell: |
     dotnet publish $(Project_Path) `
       --configuration Release `
@@ -39,7 +44,7 @@ steps:
       --output $(Publish_Output)
   displayName: 'Build & Publish'
 
-# 5. Empaquetar con Velopack usando el ID de compilación de Azure DevOps
+# 6. Empaquetar con Velopack usando el ID de compilación de Azure DevOps
 - powershell: |
     vpk pack `
       --packId "BVNWinForms" `
