@@ -36,6 +36,7 @@ steps:
       --runtime win-x64 `
       --self-contained true `
       -p:PublishSingleFile=true `
+      -p:Version="1.0.$(Build.BuildId)" `
       --output $(Publish_Output)
   displayName: 'Build & Publish'
 
