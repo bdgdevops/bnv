@@ -16,7 +16,7 @@ public record LoginValidationResult(bool IsValid, string ErrorMessage)
 /// </summary>
 public static class LoginValidator
 {
-    public const int MinUsernameLength = 3;
+    public const int MinUsernameLength = 5;
     public const int MaxUsernameLength = 10;
 
     public const int MinPasswordLength = 4;
