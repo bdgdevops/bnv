@@ -16,8 +16,8 @@ public static class MarketData
         new() { Ticker="TLEVISA",Name="Televisa",               Icon="📺", ColorHex="#FB923C", Sector="Medios",            Price=11.25, Open=11.25, Volatility=0.016 },
         new() { Ticker="PINFRA",Name="Promotora y Op. Infraestr.",Icon="🛣",ColorHex="#6EE7B7",Sector="Infraestructura",   Price=185.20,Open=185.20,Volatility=0.011 },
         new() { Ticker="ELEKTRA",Name="Grupo Elektra",          Icon="⚡", ColorHex="#FBBF24", Sector="Retail Especializado",Price=764.50,Open=764.50,Volatility=0.022 },
-        new() { Ticker="ARCA",  Name="Arca Continental",        Icon="🥤", ColorHex="#60A5FA", Sector="Bebidas",           Price=178.80,Open=178.80,Volatility=0.010 },
-        new() { Ticker="TECNO",  Name="Tecnología Avanzada",    Icon="💻", ColorHex="#60A5FA", Sector="Tecnología",        Price=178.80,Open=178.80,Volatility=0.010 },
+        new() { Ticker="ARCA",  Name="Arca Continental",        Icon="🥤", ColorHex="#60A5FA", Sector="Bebidas",           Price=178.80,Open=178.80,Volatility=0.010 }
+        
     ];
 
     public static List<string> GetHeadlines() =>
